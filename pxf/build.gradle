@@ -204,6 +204,9 @@ project('pxf-service') {
         preInstall file('src/scripts/pre-install.sh')
         postInstall file('src/scripts/post-install.sh')
 
+	user 'pxf'
+	permissionGroup 'pxf'
+
         from('src/main/resources/pxf-profiles-default.xml') {
             fileType CONFIG | NOREPLACE
             into "/etc/pxf-${project.version}/conf"
