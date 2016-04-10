@@ -3027,6 +3027,7 @@ prepareDfsAddressForDispatch(QueryContextInfo* cxt)
 {
 	if (!enable_secure_filesystem)
 		return;
+	elog(DEBUG2, "sending sharedPath to segments %s", cxt->sharedPath);
 	const char *namespace = cxt->sharedPath;
 	int size = strlen(namespace);
 	StringInfoData buffer;
