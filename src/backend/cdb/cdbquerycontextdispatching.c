@@ -784,13 +784,20 @@ RebuildNamespace(QueryContextInfo *cxt)
 	binary = palloc(len);
 	if(ReadData(cxt, binary, len, TRUE))
 	{
+		//No need to reset dfs_address if it is already set
+		//TODO: cxt->buffer has corrupted data the second time a segment tries to deserialize it
+		if (dfs_address) {
+			pfree(binary);
+			return;
+		}
 		StringInfoData buffer;
 		initStringInfoOfString(&buffer, binary, len);
 		dfs_address = strdup(buffer.data);
+		pfree(binary);
 	} else {
+		pfree(binary);
 		elog(ERROR, "Couldn't rebuild Namespace");
 	}
-	pfree(binary);
 }
 
 /*
