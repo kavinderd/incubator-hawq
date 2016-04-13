@@ -3031,10 +3031,9 @@ prepareDfsAddressForDispatch(QueryContextInfo* cxt)
 {
 	if (!enable_secure_filesystem)
 		return;
-	char *namespace = NULL;
-	get_hdfs_location_from_filespace(&namespace);
+	const char *namespace = cxt->sharedPath;
 	elog(DEBUG2, "sending sharedPath to segments %s", namespace);
-	int size = strlen(namespace);
+	int size = strlen(namespace) + 1;
 	StringInfoData buffer;
 	initStringInfo(&buffer);
 
