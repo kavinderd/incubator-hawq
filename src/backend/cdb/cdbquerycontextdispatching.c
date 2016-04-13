@@ -782,16 +782,12 @@ RebuildNamespace(QueryContextInfo *cxt)
 
 	len = (int) ntohl(*(uint32 *) buffer);
 	binary = palloc(len);
+	elog(DEBUG2, "********************* CXT DATA %s ***********************", cxt->buffer + cxt->cursor);
 	if(ReadData(cxt, binary, len, TRUE))
 	{
-		//No need to reset dfs_address if it is already set
-		//TODO: cxt->buffer has corrupted data the second time a segment tries to deserialize it
-		if (dfs_address) {
-			pfree(binary);
-			return;
-		}
 		StringInfoData buffer;
 		initStringInfoOfString(&buffer, binary, len);
+		elog(DEBUG2, "******************** BUFFER DATA %s *************", buffer.data);
 		dfs_address = strdup(buffer.data);
 		pfree(binary);
 	} else {
@@ -807,6 +803,7 @@ void
 RebuildQueryContext(QueryContextInfo *cxt, HTAB **currentFilesystemCredentials,
         MemoryContext *currentFilesystemCredentialsMemoryContext)
 {
+	elog(DEBUG2, "******************* REBUILD QUERY CONTEXT INFO ****************");
     char type;
 
     while (TRUE)

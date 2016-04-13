@@ -539,5 +539,6 @@ void free_token_resources(PxfInputData *inputData)
 
 void free_dfs_address()
 {
+	elog(DEBUG2, "******************************* FREEING DFS ADDRESS %s ********************", dfs_address);
 	free(dfs_address);
 }
