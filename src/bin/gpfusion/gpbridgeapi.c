@@ -540,5 +540,5 @@ void free_token_resources(PxfInputData *inputData)
 
 void free_dfs_address()
 {
-	free(dfs_address);
+	/* free(dfs_address); */
 }
