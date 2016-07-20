@@ -123,7 +123,7 @@ static void add_alignment_size_httpheader(CHURL_HEADERS headers)
  */
 static void add_tuple_desc_httpheader(CHURL_HEADERS headers, Relation rel)
 {	
-    char long_number[32];	
+    char long_number[12];
     StringInfoData formatter;	
     TupleDesc tuple;		
     initStringInfo(&formatter);
