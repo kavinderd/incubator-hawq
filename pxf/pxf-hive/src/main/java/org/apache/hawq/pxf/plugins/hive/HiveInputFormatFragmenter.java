@@ -298,6 +298,6 @@ public class HiveInputFormatFragmenter extends HiveDataFragmenter {
      */
     @Override
     public FragmentsStats getFragmentsStats() throws Exception {
-        throw new UnsupportedOperationException("ANALYZE for HiveRc and HiveText plugins is not supported");
+        throw new UnsupportedOperationException("ANALYZE for HiveRc, HiveText, and HiveOrc plugins is not supported");
     }
 }
