@@ -20,8 +20,10 @@ package org.apache.hawq.pxf.api;
  */
 
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.hawq.pxf.api.io.DataType;
+
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Stack;
 
 /**
@@ -286,14 +288,91 @@ public class FilterParser {
         if (index == filterString.length()) {
             throw new FilterStringSyntaxException("argument should follow at " + index);
         }
+        int dataTypeValue = parseInt();
 
-        return senseString()
-                ? parseString()
-                : parseNumber();
+        DataType dataType = DataType.get(dataTypeValue);
+
+        if (dataType == DataType.UNSUPPORTED_TYPE) {
+            throw new FilterStringSyntaxException("unsupported data type at " + (index - 1));
+        }
+
+        if (filterString.charAt(index) != 's') {
+            throw new FilterStringSyntaxException("data type length delimiter s expected at " + index);
+        }
+
+        index++;
+
+        int lengthValue = parseInt();
+
+        if (lengthValue < 1) {
+            throw new FilterStringSyntaxException("invalid data type length at " + index);
+        }
+
+        if (filterString.charAt(index) != 'd') {
+            throw new FilterStringSyntaxException("data delimiter d expected at " + index);
+        }
+
+        index++;
+
+        if (index  + lengthValue > filterString.length()) {
+            throw new FilterStringSyntaxException("data size larger than filter string at " + index);
+        }
+
+        String data = filterString.substring(index, index + lengthValue);
+        index += lengthValue;
+
+        try {
+            switch (dataType) {
+                case VARCHAR:
+                case TEXT:
+                case BPCHAR:
+                    return new Constant(data);
+                case INTEGER:
+                case SMALLINT:
+                    return new Constant(Integer.parseInt(data));
+                case BIGINT:
+                    return new Constant(Long.parseLong(data));
+                case NUMERIC:
+                    return new Constant(Double.parseDouble(data));
+                case BOOLEAN:
+                    return new Constant(Boolean.parseBoolean(data));
+                case BYTEA:
+                    return new Constant(data.getBytes());
+                case FLOAT8:
+                case REAL:
+                    return new Constant(Float.parseFloat(data));
+                case DATE:
+                    return new Constant(Date.valueOf(data));
+                case TIME:
+                    return new Constant(Timestamp.valueOf(data));
+                default:
+                    break;
+            }
+        } catch (NumberFormatException nfe) {
+            throw new FilterStringSyntaxException("failed to parse number data type starting at " +
+                    (index - lengthValue));
+        } catch (IllegalArgumentException iae) {
+            throw new FilterStringSyntaxException("failed to parse data type starting at " +
+                    (index - lengthValue));
+        }
+
+        throw new FilterStringSyntaxException("unable to parse data constant at " + index);
     }
 
-    private boolean senseString() {
-        return filterString.charAt(index) == '"';
+
+    private Integer parseInt() throws Exception {
+        if (index == filterString.length()) {
+            throw new FilterStringSyntaxException("numeric argument expected at " + index);
+        }
+
+        String digits = parseDigits();
+
+        try {
+            return Integer.parseInt(digits);
+        } catch (NumberFormatException e) {
+            throw new FilterStringSyntaxException("invalid numeric argument " + digits);
+        }
+
     }
 
     private Long parseNumber() throws Exception {

@@ -118,13 +118,42 @@ public class FilterParserTest {
         runParseNegative("const operand with no value", filter, exception);
 
         filter = "cyan";
+        index = 1;
         exception = "numeric argument expected at " + index;
         runParseNegative("const operand with illegal value", filter, exception);
 
-        filter = "c\"and that's it";
-        exception = "string started at " + index + " not ended with \"";
-        runParseNegative("string without closing \"", filter, exception);
+        filter = "c999";
+        index = 3;
+        exception = "unsupported data type at " + index;
+        runParseNegative("const operand with invalid value", filter, exception);
+
+        filter = "c16f";
+        index = 3;
+        exception = "data type length delimiter s expected at " + index;
+        runParseNegative("const operand with invalid value", filter, exception);
+
+        filter = "c16s";
+        index = 4;
+        exception = "numeric argument expected at " + index;
+        runParseNegative("length delimiter with no value", filter, exception);
+
+        filter = "c16syan";
+        index = 4;
+        exception = "numeric argument expected at " + index;
+        runParseNegative("length delimiter with illegal value", filter, exception);
+
+        filter = "c1043s2dw";
+        index = 8;
+        exception = "data size larger than filter string at " + index;
+        runParseNegative("length delimiter with illegal value", filter, exception);
+
+
+        filter = "c20s2dan";
+        index = 6;
+        exception = "failed to parse number data type starting at " + index;
+        runParseNegative("data type incorrect boolean value", filter, exception);
     }
+
 
     @Test
     public void parseNegativeBadOperation() {
